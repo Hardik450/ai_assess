@@ -1,0 +1,393 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ai_assess | Registration</title>
+    <link rel="icon" href='/static/img/logo_1.png' type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .company {
+            display: flex;
+            padding-left: 10px;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .company img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+
+        .company h1 {
+            font-size: 28px;
+            color: #2ab575;
+            font-weight: 600;
+        }
+
+        .company h1 a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .form {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form h2 {
+            color: #2ab575;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .inp {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .inp input, .inp select {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .inp input:focus, .inp select:focus {
+            border-color: #2ab575;
+            box-shadow: 0 0 0 3px rgba(44, 174, 226, 0.1);
+            outline: none;
+        }
+
+        .inp .material-symbols-outlined {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 5px;
+            margin-left: 45px;
+            display: none;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: #2ab575;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background: #2ab575;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 174, 226, 0.2);
+        }
+
+        .logpage {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .logpage a {
+            color: #2ab575;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .logpage a:hover {
+            color: #2ab575;
+        }
+
+        @media screen and (max-width: 480px) {
+            .form {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="company">
+        <img src="/static/img/logo.png" alt="ai_assess Logo" />
+        <h1><a href="/ai_assess/"></a></h1>
+    </div>
+    <div id="loader" style="
+    display:none;
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(255,255,255,0.8);
+    z-index: 9999;
+    text-align:center;
+    padding-top:20%;
+    font-size:24px;
+    color:#2ab575;
+">
+    Sending OTP... Please wait
+</div>
+
+    <div class="container">
+        <div class="form">
+            <h2>Create Account</h2>
+            <form id="registerForm" method="post" action="{% url 'register' %}">
+                {% csrf_token %}
+                <b>{{error}}</b>
+                <div class="inp">
+                    <span class="material-symbols-outlined">person</span>
+                    <input type="text" id="name" name="name" placeholder="Enter Your Name" required />
+                    <div id="nameError" class="error-message">Please enter your name.</div>
+                </div>
+
+                <div class="inp">
+                    <span class="material-symbols-outlined">mail</span>
+                    <input type="email" id="email" name="email" placeholder="Enter Your Email" required />
+                    <div id="emailError" class="error-message">Please enter a valid email.</div>
+                    <div id="email-result" class="error-message"></div>
+                </div>
+
+                <div class="inp">
+                    <span class="material-symbols-outlined">call</span>
+                    <input type="text" id="number" name="number" placeholder="Enter Your Mobile Number" required pattern="^\d{10,17}$" />
+                    <div id="numberError" class="error-message">Invalid mobile number.</div>
+                </div>
+
+                <div class="inp">
+                    <span class="material-symbols-outlined">query_stats</span>
+                    <input type="number" id="age" name="age" placeholder="Enter Your Age" required min="1" max="150" />
+                    <div id="ageError" class="error-message">Please enter a valid age (1-150).</div>
+                </div>
+
+                <div class="inp">
+                    <span class="material-symbols-outlined">person_outline</span>
+                    <select name="gender" id="gender" required>
+                        <option value="" disabled selected>Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="inp">
+                    <span class="material-symbols-outlined">lock</span>
+                    <input type="password" id="password" name="password" placeholder="Enter Password" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" />
+                    <div id="passwordError" class="error-message">Password must be 8+ characters with numbers, symbols, and letters.</div>
+                </div>
+
+                <div class="inp">
+                    <span class="material-symbols-outlined">key</span>
+                    <input type="password" id="confpass" name="confpass" placeholder="Confirm Password" required />
+                    <div id="confpassError" class="error-message">Passwords do not match.</div>
+                    <div id="password-match-result" class="error-message"></div>
+                </div>
+
+                <input type="submit" value="Register" />
+            </form>
+            <div class="logpage">
+                Already have an account? <a href="/ai_assess/login">Login Here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+window.addEventListener('load', function() {
+    document.getElementById("loader").style.display = "none";
+});
+
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          var isValid = true;
+document.getElementById("loader").style.display = "block";
+          // Name Validation
+          var name = document.getElementById("name").value;
+          if (!name) {
+            document.getElementById("nameError").style.display = "block";
+            isValid = false;
+          } else {
+            document.getElementById("nameError").style.display = "none";
+          }
+
+          // Email Validation
+          var email = document.getElementById("email").value;
+          var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailPattern.test(email)) {
+            document.getElementById("emailError").style.display = "block";
+            isValid = false;
+          } else {
+            document.getElementById("emailError").style.display = "none";
+          }
+
+          // Mobile Number Validation
+          var number = document.getElementById("number").value;
+          var numberPattern = /^\d{7,17}$/;
+          if (!numberPattern.test(number)) {
+            document.getElementById("numberError").style.display = "block";
+            isValid = false;
+          } else {
+            document.getElementById("numberError").style.display = "none";
+          }
+
+          // Age Validation
+          var age = document.getElementById("age").value;
+          if (age < 1 || age > 150) {
+            document.getElementById("ageError").style.display = "block";
+            isValid = false;
+          } else {
+            document.getElementById("ageError").style.display = "none";
+          }
+
+          // Password Validation
+          var password = document.getElementById("password").value;
+          var passwordPattern =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          if (!passwordPattern.test(password)) {
+            document.getElementById("passwordError").style.display = "block";
+            isValid = false;
+          } else {
+            document.getElementById("passwordError").style.display = "none";
+          }
+
+          // Confirm Password Validation
+          var confpass = document.getElementById("confpass").value;
+          if (password !== confpass) {
+            document.getElementById("confpassError").style.display = "block";
+            isValid = false;
+          } else {
+            document.getElementById("confpassError").style.display = "none";
+          }
+
+          if (isValid) {
+    // Create FormData to submit via fetch
+    const formData = new FormData(this);
+
+    fetch(this.action, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken },
+      body: formData
+    })
+      .then(response => {
+        if (response.redirected) {
+          window.location.href = response.url;  // <-- manually follow redirect
+        } else {
+          return response.text();  // fallback for errors
+        }
+      })
+      .then(data => console.log(data))
+      .catch(err => console.error(err));
+  }
+});
+
+
+
+      document.getElementById("email").addEventListener("input", function () {
+        var email = this.value;
+        var resultElement = document.getElementById("email-result");
+
+        if (email.length > 0) {
+          fetch(`/ai_assess/check_email/?email=${email}`)
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.is_taken) {
+                resultElement.textContent =
+                  "Account with the email already exist";
+                resultElement.style.color = "red";
+              } else {
+                resultElement.textContent = "";
+                resultElement.style.color = "cyan";
+              }
+            });
+        } else {
+          resultElement.textContent = "";
+        }
+      });
+
+      // Confirm password validation
+      document
+        .getElementById("confpass")
+        .addEventListener("input", function () {
+          var password = document.getElementById("password").value;
+          var confpass = this.value;
+          var resultElement = document.getElementById("password-match-result");
+
+          if (password === confpass) {
+            resultElement.textContent = "Passwords match";
+            resultElement.style.color = "cyan";
+          } else {
+            resultElement.textContent = "Passwords do not match";
+            resultElement.style.color = "red";
+          }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-content h1 {
+            color: #1a202c;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #4a5568;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .icon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .icon-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #4a5568;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Feedback Section */
+        .feedback-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .feedback-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feedback-title {
+            font-size: 1.75rem;
+            color: #1a202c;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        /* Filter & Search Bar */
+        .controls-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Submissions Grid */
+        .submissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        /* Submission Card */
+        .submission-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submission-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .submission-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .submission-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Submission Header */
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            gap: 12px;
+        }
+
+        .submission-id {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+        }
+
+        .status-reviewed {
+            background: linear-gradient(135deg, #d1ecf1 0%, #81ecec 100%);
+            color: #0c5460;
+        }
+
+        .status-finalized {
+            background: linear-gradient(135deg, #d4edda 0%, #55efc4 100%);
+            color: #155724;
+        }
+
+        /* Submission Meta */
+        .submission-meta {
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #4a5568;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .meta-icon {
+            font-size: 1.1rem;
+        }
+
+        /* Files Section */
+        .files-section {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .files-label {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .files-section a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: white;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .files-section a:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* AI Preview */
+        .ai-preview {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #495057;
+            border-left: 4px solid #667eea;
+            line-height: 1.6;
+        }
+
+        .ai-preview strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Grade Display */
+        .grade-display {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(46, 204, 113, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grade-display::before {
+            content: '🎉';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 3rem;
+            opacity: 0.2;
+        }
+
+        .grade-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .grade-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            margin-top: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .review-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 24px;
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .empty-state-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 12px;
+        }
+
+        .empty-state-subtext {
+            color: #718096;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Modal Styles */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 36px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: modalSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalSlideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        #modalTitle {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #modalBody {
+            margin-bottom: 24px;
+        }
+
+        #modalBody p {
+            margin-bottom: 16px;
+            line-height: 1.6;
+            color: #4a5568;
+        }
+
+        #modalBody strong {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        #modalBody label {
+            display: block;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        #modalBody input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        #modalBody input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+        }
+
+        .modal-btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .modal-btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .header {
+                padding: 24px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-content h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+
+            .feedback-section {
+                padding: 20px;
+            }
+
+            .feedback-header {
+                margin-bottom: 20px;
+            }
+
+            .feedback-title {
+                font-size: 1.25rem;
+            }
+
+            .submissions-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .submission-card {
+                padding: 20px;
+            }
+
+            .modal-content {
+                padding: 24px;
+                max-height: 85vh;
+            }
+
+            #modalTitle {
+                font-size: 1.25rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 1.25rem;
+            }
+
+            .subtitle {
+                font-size: 0.875rem;
+            }
+
+            .icon-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .submission-card {
+                padding: 16px;
+            }
+
+            .grade-number {
+                font-size: 2rem;
+            }
+
+            .empty-state-icon {
+                font-size: 3.5rem;
+            }
+
+            .empty-state-text {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Dark mode support (optional) */
+        @media (prefers-color-scheme: dark) {
+            /* Add dark mode styles here if needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <h1>✨ Student Dashboard</h1>
+                <p class="subtitle">Welcome back, {{ user.name }} 👋</p>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" title="Notifications">🔔</button>
+                <button class="icon-btn" title="Settings">⚙️</button>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value">{{ assessments|length }}</div>
+                <div class="stat-label">Total Submissions</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{% for a in assessments %}{% if a.status == "Reviewed" %}1{% endif %}{% endfor %}</div>
+                <div class="stat-label">Reviewed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{% for a in assessments %}{% if not a.status == "Reviewed" %}1{% endif %}{% endfor %}</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+
+        <!-- Feedback Section -->
+        <div class="feedback-section" id="feedbackSection">
+            <div class="feedback-header">
+                <div class="feedback-icon">📊</div>
+                <div class="feedback-title">Your Assessments</div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="controls-bar">
+                <input type="text" class="search-input" placeholder="🔍 Search submissions..." id="searchInput">
+                <button class="filter-btn active" onclick="filterAll()">All</button>
+                <button class="filter-btn" onclick="filterGraded()">Graded</button>
+                <button class="filter-btn" onclick="filterPending()">Pending</button>
+            </div>
+
+            <!-- Submissions Grid -->
+            <div id="feedbackContent">
+                <div id="submissionsContainer" class="submissions-grid">
+                    {% if assessments %}
+                        {% for assessment in assessments %}
+                            <div class="submission-card" data-status="{% if assessment.status == 'Reviewed' %}Reviewed{% else %}In Progress{% endif %}">
+                                <div class="submission-header">
+                                    <div class="submission-id">#{{ forloop.counter }}</div>
+                                    {% if assessment.status == 'Reviewed' %}
+                                        <div class="status-badge status-finalized">✅ {{ assessment.status }}</div>
+                                    {% else %}
+                                        <div class="status-badge status-pending">⏳ {{ assessment.status}} </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="submission-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-icon">📅</span>
+                                        <span>{{ assessment.created_at|date:"M d, Y" }}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-icon">⏰</span>
+                                        <span>{{ assessment.created_at|date:"h:i A" }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="files-section">
+                                    <span class="files-label">📎 Attached File</span>
+                                    <div>
+                                        <a href="{{ assessment.assessment.url }}" target="_blank">
+                                            📄 {{ assessment.assessment.name|truncatechars:30 }}
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="ai-preview">
+                                    <strong>🤖 AI Assessment</strong> 
+                                    {{ assessment.summary|default:"Processing your submission..."|truncatechars:100 }}
+                                </div>
+
+                                {% if assessment.score %}
+                                    <div class="grade-display">
+                                        <div class="grade-number">{{ assessment.score }}/10</div>
+                                        <div class="grade-label">Final Grade</div>
+                                    </div>
+                                    <button class="action-btn view-btn" onclick="viewSubmission({{ forloop.counter0 }})">
+                                        👁️ View Full Details
+                                    </button>
+                                {% else %}
+                                    <button class="action-btn review-btn" onclick="openReviewModal({{ forloop.counter0 }})">
+                                        📝 Review & Grade
+                                    </button>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div id="emptyState" class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <div class="empty-state-text">No submissions yet</div>
+                            <div class="empty-state-subtext">Assignments will appear here once students submit</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Assessment Details</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const assessments = JSON.parse('{{ assessments_json|escapejs }}');
+console.log(assessments);
+        // Filter functions
+        function filterAll() {
+            updateActiveFilter(0);
+            document.querySelectorAll('.submission-card').forEach(card => {
+                card.style.display = 'block';
+            });
+        }
+
+        function filterGraded() {
+            updateActiveFilter(1);
+            document.querySelectorAll('.submission-card').forEach(card => {
+                card.style.display = card.dataset.status === 'Reviewed' ? 'block' : 'none';
+            });
+        }
+
+        function filterPending() {
+            updateActiveFilter(2);
+            document.querySelectorAll('.submission-card').forEach(card => {
+                card.style.display = card.dataset.status === 'In Progress' ? 'block' : 'none';
+            });
+        }
+
+        function updateActiveFilter(index) {
+            document.querySelectorAll('.filter-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+        }
+
+        // Search function
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.submission-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(query) ? 'block' : 'none';
+            });
+        });
+
+        // Modal functions
+        function openReviewModal(index) {
+            const a = assessments[index];
+            document.getElementById("modalTitle").innerHTML = "📝 Review & Grade";
+            document.getElementById("modalBody").innerHTML = `
+                <p><strong>📄 File:</strong> <a href="${a.assessment}" target="_blank">${a.name}</a></p>
+                <p><strong>📊 Status:</strong> ${a.status}</p>
+                <p><strong>💬 Feedback:</strong> ${a.feedback || "No feedback yet"}</p>
+                <label>🎯 Score (out of 10):</label>
+                <input type="number" id="gradeInput" max="10" min="0" value="${a.score || ''}" placeholder="Enter score">
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-primary" onclick="submitGrade(${a.id})">
+                        ✅ Save Grade
+                    </button>
+                    <button class="modal-btn modal-btn-secondary" onclick="closeModal()">
+                        ❌ Cancel
+                    </button>
+                </div>
+            `;
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function viewSubmission(index) {
+            const a = assessments[index];
+            document.getElementById("modalTitle").innerHTML = "👁️ Assessment Details";
+            document.getElementById("modalBody").innerHTML = `
+                <p><strong>📊 Status:</strong> <span style="color: #2ecc71; font-weight: 700;">${a.status}</span></p>
+                <p><strong>🎯 Score:</strong> <span style="font-size: 1.5rem; color: #667eea; font-weight: 800;">${a.score}/10</span></p>
+                <p><strong>📄 File:</strong> <a href="/media/${a.assessment}" target="_blank" style="color: #667eea;">${a.assessment}</a></p>
+                <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px; border-left: 4px solid #667eea;">
+                    <strong style="color: #667eea; display: block; margin-bottom: 10px;">🤖 AI Suggestions:</strong>
+                    <p style="line-height: 1.6; color: #495057;">${a.summary || "No AI feedback available."}</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-secondary" onclick="closeModal()">
+                        Close
+                    </button>
+                </div>
+            `;
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        function submitGrade(id) {
+            const score = document.getElementById("gradeInput").value;
+            
+            if (!score || score < 0 || score > 10) {
+                alert("⚠️ Please enter a valid score between 0 and 10");
+                return;
+            }
+
+            // Show loading state
+            const modalBody = document.getElementById("modalBody");
+            const originalContent = modalBody.innerHTML;
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 20px; color: #667eea; font-weight: 600;">Saving grade...</p>
+                </div>
+            `;
+
+            fetch(`/update_grade/${id}/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ score })
+            }).then(res => {
+                if (res.ok) {
+                    modalBody.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="font-size: 4rem; margin-bottom: 20px;">✅</div>
+                            <h3 style="color: #2ecc71; margin-bottom: 10px;">Grade saved successfully!</h3>
+                            <p style="color: #4a5568;">Reloading dashboard...</p>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    modalBody.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="font-size: 4rem; margin-bottom: 20px;">❌</div>
+                            <h3 style="color: #e74c3c; margin-bottom: 10px;">Error saving grade</h3>
+                            <p style="color: #4a5568; margin-bottom: 20px;">Please try again</p>
+                            <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
+                        </div>
+                    `;
+                }
+            }).catch(err => {
+                modalBody.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">⚠️</div>
+                        <h3 style="color: #e74c3c; margin-bottom: 10px;">Network error</h3>
+                        <p style="color: #4a5568; margin-bottom: 20px;">Please check your connection and try again</p>
+                        <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
+                    </div>
+                `;
+            });
+        }
+
+        // Close modal on background click
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Animate cards on load
+        document.querySelectorAll('.submission-card').forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // Add tooltip functionality (optional enhancement)
+        document.querySelectorAll('[title]').forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                const tooltip = document.createElement('div');
+                tooltip.textContent = this.getAttribute('title');
+                tooltip.style.cssText = `
+                    position: absolute;
+                    background: #1a202c;
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 6px;
+                    font-size: 0.875rem;
+                    pointer-events: none;
+                    z-index: 10000;
+                    white-space: nowrap;
+                `;
+                document.body.appendChild(tooltip);
+                
+                const rect = this.getBoundingClientRect();
+                tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+                tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
+                
+                this._tooltip = tooltip;
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                if (this._tooltip) {
+                    this._tooltip.remove();
+                    delete this._tooltip;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

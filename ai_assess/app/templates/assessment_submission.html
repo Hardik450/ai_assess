@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assessment Feedback Portal</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jQuery for AJAX -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    .hidden { display: none; }
+    #loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-6">
+
+  <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">📘 Assessment Feedback Submission</h1>
+
+    <!-- Upload Form -->
+    <form id="assessmentForm" enctype="multipart/form-data" method="POST" class="space-y-6">
+      {% csrf_token %}
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Teacher Name</label>
+        <input type="text" name="teacher" required
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Upload Assessment (Image or PDF)</label>
+        <input type="file" name="assessment" accept=".pdf,image/*" required
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+      </div>
+
+      <div class="flex justify-center">
+        <button type="submit"
+                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+          Submit for Feedback
+        </button>
+      </div>
+    </form>
+
+    <!-- Loader -->
+    <div id="loading" class="hidden mt-6 text-center">
+      <div id="loader"></div>
+      <p class="mt-3 text-gray-500">Analyzing your assessment, please wait...</p>
+    </div>
+
+    <!-- Result Section -->
+    <div id="result" class="hidden mt-8 bg-gray-100 rounded-lg p-5">
+      <h2 class="text-xl font-semibold mb-4 text-gray-700">📋 Feedback Summary</h2>
+
+      <div id="feedbackContainer" class="space-y-4"></div>
+
+      <div class="mt-4 text-center">
+        <span class="text-lg font-semibold text-blue-700">
+          Overall Score: <span id="score"></span>/100
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AJAX Script -->
+  <script>
+    $(document).ready(function() {
+      $("#assessmentForm").on("submit", function(e) {
+        e.preventDefault();
+        $("#result").addClass("hidden");
+        $("#loading").removeClass("hidden");
+
+        var formData = new FormData(this);
+
+        $.ajax({
+          url: "", // Set your endpoint here
+          type: "POST",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(response) {
+            $("#loading").addClass("hidden");
+
+            if (response.redirect_url) {
+              window.location.href = response.redirect_url; // <-- manual redirect
+              return;
+            }
+
+            // Otherwise, show feedback
+            let feedback = response.feedback || {};
+            let feedbackHTML = "";
+
+            for (let [section, data] of Object.entries(feedback)) {
+              feedbackHTML += `
+                <div class="bg-white shadow p-4 rounded-lg">
+                  <h3 class="font-semibold text-gray-800 mb-2">${section}</h3>
+                  <p><strong>Grammatical Mistakes:</strong> ${data.Grammatical_Mistakes || "None"}</p>
+                  <p><strong>Conceptual Mistakes:</strong> ${data.Conceptual_Mistakes || "None"}</p>
+                  <p><strong>Suggestions:</strong> ${data.Suggestions || "None"}</p>
+                </div>
+              `;
+            }
+
+            $("#feedbackContainer").html(feedbackHTML);
+            $("#score").text(response.score || "N/A");
+            $("#result").removeClass("hidden");
+          },
+          error: function(xhr, status, error) {
+            $("#loading").addClass("hidden");
+            alert("An error occurred while submitting the assessment.");
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
