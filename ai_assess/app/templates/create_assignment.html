@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Assignment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Global styles */
+body {
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(to bottom right, #e3f2fd, #e8eaf6);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 90%;
+  max-width: 700px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  padding: 30px 40px;
+  animation: slideIn 0.8s ease forwards;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+h1 {
+  text-align: center;
+  color: #2a3f73;
+  margin-bottom: 25px;
+  font-size: 28px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+input[type="text"],
+input[type="date"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #3f51b5;
+  box-shadow: 0 0 5px rgba(63, 81, 181, 0.3);
+}
+
+textarea {
+  resize: vertical;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+small {
+  display: block;
+  margin-top: 5px;
+  color: #666;
+  font-size: 13px;
+}
+
+.btn {
+  display: inline-block;
+  width: 100%;
+  padding: 12px;
+  background: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.3s, transform 0.1s;
+}
+
+.btn:hover {
+  background: #283593;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.error {
+  border-color: #e53935 !important;
+  box-shadow: 0 0 5px rgba(229, 57, 53, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container {
+    padding: 25px 20px;
+  }
+  .form-row {
+    flex-direction: column;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Create New Assignment</h1>
+
+    <form method="POST" id="assignmentForm">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="title">Assignment Title</label>
+        <input type="text" id="title" name="title" required placeholder="Enter assignment title">
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4" required placeholder="Describe the assignment..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="assigned_date">Assigned Date</label>
+          <input type="date" id="assigned_date" name="assigned_date" required>
+        </div>
+        <div class="form-group">
+          <label for="due_date">Due Date</label>
+          <input type="date" id="due_date" name="due_date" required>
+        </div>
+      </div>
+
+      <!-- Manual entry fields for emails -->
+      <div class="form-group">
+        <label for="assigned_to">Assign To (Student Emails)</label>
+        <textarea id="assigned_to" name="assigned_to" rows="2" required placeholder="Enter student emails separated by commas or spaces"></textarea>
+        <small>Example: student1@gmail.com, student2@gmail.com</small>
+      </div>
+
+      <div class="form-group">
+        <label for="evaluators">Evaluators (Teacher Emails)</label>
+        <textarea id="evaluators" name="evaluators" rows="2" required placeholder="Enter teacher emails separated by commas or spaces"></textarea>
+        <small>Example: teacher1@gmail.com teacher2@gmail.com</small>
+      </div>
+
+      <button type="submit" class="btn">Create Assignment</button>
+    </form>
+  </div>
+
+  <script>
+  // Smooth page fade-in
+  document.body.style.opacity = 0;
+  window.addEventListener("load", () => {
+    document.body.style.transition = "opacity 0.7s";
+    document.body.style.opacity = 1;
+  });
+
+  const form = document.getElementById("assignmentForm");
+  const assignedTo = document.getElementById("assigned_to");
+  const evaluators = document.getElementById("evaluators");
+
+  // === Helper: Show popup notifications ===
+  function showPopup(message, success = true) {
+    const popup = document.createElement("div");
+    popup.textContent = message;
+    popup.style.position = "fixed";
+    popup.style.bottom = "20px";
+    popup.style.right = "20px";
+    popup.style.padding = "12px 18px";
+    popup.style.borderRadius = "8px";
+    popup.style.color = "white";
+    popup.style.background = success ? "#4CAF50" : "#f44336";
+    popup.style.boxShadow = "0 3px 10px rgba(0,0,0,0.2)";
+    popup.style.zIndex = "9999";
+    popup.style.opacity = "0";
+    popup.style.transition = "opacity 0.3s";
+    document.body.appendChild(popup);
+    requestAnimationFrame(() => popup.style.opacity = "1");
+    setTimeout(() => {
+      popup.style.opacity = "0";
+      setTimeout(() => popup.remove(), 300);
+    }, 2500);
+  }
+
+  // === EMAIL EXISTENCE + ROLE CHECK ===
+  const checkEmail = async (email) => {
+    if (!email) return null;
+    try {
+      const response = await fetch(`/ai_assess/check_email_status/?email=${encodeURIComponent(email)}`);
+      if (!response.ok) throw new Error('Network error');
+      return await response.json(); // { is_taken: true/false, role: 'student' }
+    } catch (err) {
+      console.error('Error checking email:', err);
+      return null;
+    }
+  };
+
+  // === VALIDATE EMAIL FIELD (role-based) ===
+  async function validateEmailList(textarea, expectedRole) {
+    const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+    const emails = textarea.value.split(/[\s,]+/).filter(e => e.trim() !== "");
+    let invalidEmails = [];
+
+    for (let email of emails) {
+      if (!emailRegex.test(email)) {
+        invalidEmails.push(`${email} (invalid format)`);
+        continue;
+      }
+      const data = await checkEmail(email);
+      if (!data) continue;
+      if (!data.exists) {
+        invalidEmails.push(`${email} (not registered)`);
+      } else if (data.role !== expectedRole) {
+        invalidEmails.push(`${email} (not a ${expectedRole})`);
+      }
+    }
+
+    if (invalidEmails.length > 0) {
+      textarea.classList.add("error");
+      textarea.title = invalidEmails.join("\n");
+      return false;
+    } else {
+      textarea.classList.remove("error");
+      textarea.title = "";
+      return true;
+    }
+  }
+
+  // === REAL-TIME VALIDATION (asynchronously) ===
+  assignedTo.addEventListener("blur", async () => {
+    showPopup("Checking student emails...");
+    const valid = await validateEmailList(assignedTo, "student");
+    showPopup(valid ? "✅ All student emails valid" : "⚠️ Invalid student emails", valid);
+  });
+
+  evaluators.addEventListener("blur", async () => {
+    showPopup("Checking teacher emails...");
+    const valid = await validateEmailList(evaluators, "teacher");
+    showPopup(valid ? "✅ All teacher emails valid" : "⚠️ Invalid teacher emails", valid);
+  });
+
+  // === ASYNC FORM SUBMISSION (no reload) ===
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const validStudents = await validateEmailList(assignedTo, "student");
+    const validTeachers = await validateEmailList(evaluators, "teacher");
+    if (!validStudents || !validTeachers) {
+      showPopup("❌ Please fix invalid emails first", false);
+      return;
+    }
+
+    const formData = new FormData(form);
+    const response = await fetch(form.action || window.location.href, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.ok) {
+      showPopup("✅ Assignment created successfully!");
+      form.reset();
+    } else {
+      showPopup("❌ Failed to create assignment", false);
+    }
+  });
+</script>
+
+</body>
+</html>

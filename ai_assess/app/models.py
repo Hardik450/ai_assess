@@ -24,18 +24,28 @@ class CustomUser(AbstractUser):
     profile_picture = models.CharField(max_length=256, null=True, blank=True)
     profile_picture_text = models.TextField(null=True, blank=True)
 
+
+class Assignment(models.Model):
+    author = models.ForeignKey("app.CustomUser", on_delete=models.CASCADE, related_name="assignments_author")
+    title = models.CharField(max_length=256)
+    description = models.TextField()
+    assigned_date = models.DateField()
+    due_date = models.DateField()
+    assigned_to = models.ManyToManyField("app.CustomUser", related_name="assignments_assigned_to")
+    evaluators = models.ManyToManyField("app.CustomUser", related_name="assignments_evaluators")
+
+
 class AssessmentContent(models.Model):
     STATUS_CHOICES = [
         ("In progress", "In progress"),
-        ("Reviewed", "Reviewed"),
-        ("Completed", "Completed")
+        ("Submitted", "Submitted"),
+        ("Checked", "Checked")
     ]
-
+    assignment = models.ForeignKey("app.Assignment", on_delete=models.CASCADE, related_name="assessments")
     user = models.ForeignKey("app.CustomUser", on_delete=models.CASCADE, related_name="assessments")
-    teacher = models.EmailField()
     assessment = models.FileField(upload_to="assessments/")
     assess_text_file = models.FilePathField(path="media/assessment_texts/", null=True, blank=True, max_length=256)
-    feedback = models.JSONField(default=dict)
+    summary_file = models.FilePathField(path="media/summaries/", null=True, blank=True, max_length=256)
     score = models.FloatField(default=0)
     status = models.CharField(max_length=100, choices=STATUS_CHOICES, default="In progress")
     created_at = models.DateTimeField(auto_now_add=True)

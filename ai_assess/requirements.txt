@@ -1,0 +1,22 @@
+Django>=4.2,<5.3
+langchain>=0.1.18
+langchain-community>=0.0.12
+langchain-huggingface>=0.0.3
+langchain-google-genai>=0.0.6
+sentence-transformers>=2.2.2
+faiss-cpu>=1.7.4
+PyMuPDF>=1.23.6
+pytesseract>=0.3.10
+Pillow>=10.3.0
+python-dotenv>=1.0.1
+google-generativeai>=0.0.7
+fastapi>=0.103.2
+uvicorn>=0.23.2
+pydantic>=2.6.0
+# Django dependencies for JSON serialization & email support
+django-jsonfield-backport>=1.0.0
+# Optional for serializing model outputs
+django>=4.2
+# Necessary for some database/media file storage operations
+psycopg2-binary>=2.9.9
+# PIL for image handling (already covered with Pillow)
