@@ -198,9 +198,16 @@ def teacher_dashboard(request):
 ).distinct()
 
     assessments = AssessmentContent.objects.filter(assignment__in=assignments).order_by('-created_at')
-
-    print(assessments)
-    return render(request, 'teacher_dashboard.html', {'assessments': assessments, 'total_assessments': assessments.count(), 'assignments': assignments, 'total_assignments': assignments.count()})
+    with open(f"/media/summaries/{assessments.summary_file}") as f:
+        summary_content = f.read()
+        
+    return render(request, 'teacher_dashboard.html', {
+        'assessments': assessments, 
+        'total_assessments': assessments.count(), 
+        'assignments': assignments, 
+        'total_assignments': assignments.count(), 
+        'summary_content': summary_content
+        })
 
 @login_required(login_url='/ai_assess/login/')
 def student_dashboard(request):
@@ -211,7 +218,8 @@ def student_dashboard(request):
     # Convert QuerySet to list of dicts for serialization
     assessments_list = list(assessments.values())
     assessments_json = json.dumps(assessments_list, cls=DjangoJSONEncoder)
-
+    with open(f"/media/summaries/{assessments.summary_file}") as f:
+        summary_content = f.read()
     
 
     return render(request, "student_dashboard.html", {
@@ -220,6 +228,7 @@ def student_dashboard(request):
         "total_assessments": assessments.count(),
         "assignments": assignments,
         "total_assignments": assignments.count()
+        , 'summary_content': summary_content
     })
 
 
@@ -509,7 +518,7 @@ Below is the extracted student assessment text (ignore any institutional or cont
             feedback_data = {k: v for k, v in assess_data.items() if k != "total_score"}
             summary = " ".join(str(v) for v in feedback_data.values())
             score = assess_data.get("total_score", 0.0)
-            status = assess_data.get("status", "In progress")
+            status = assess_data.get("status", "Submitted")
             now = timezone.now()
             # Format without spaces and colons
             formatted = now.strftime("%Y%m%d%H%M%S%f")
@@ -528,6 +537,8 @@ Below is the extracted student assessment text (ignore any institutional or cont
             # Write the extracted text
             with open(text_path, "w", encoding="utf-8") as f:
                 f.write(assess_text)
+
+            
 
             assessment.seek(0)
             AssessmentContent.objects.create(
@@ -548,13 +559,39 @@ Below is the extracted student assessment text (ignore any institutional or cont
 
     return render(request, 'assessment_submission.html')
 
+def write_teacher_feedback(assessment, teacher_feedback):
+    if assessment.teacher_feedback_file:
+        with open(assessment.teacher_feedback_file, "a", encoding="utf-8") as f:
+            f.write(teacher_feedback)
+    else:
+        now = timezone.now()
+        formatted = now.strftime("%Y%m%d%H%M%S%f")
+        feedback_filename = f"{assessment.user.id}_{assessment.assignment.id}_{formatted}_feedback.txt"
+        feedback_dir = os.path.join(settings.MEDIA_ROOT, "teacher_feedbacks")
+        os.makedirs(feedback_dir, exist_ok=True)
+        feedback_path = os.path.join(feedback_dir, feedback_filename)
+        with open(feedback_path, "w", encoding="utf-8") as f:
+            f.write(teacher_feedback)
+        assessment.teacher_feedback_file = feedback_path
+
+
 def finalize_assessment(request, id):
     if request.method == 'POST':
         try:
             assessment = AssessmentContent.objects.get(id=id)
+            data = json.loads(request.body.decode())
+            teacher_feedback = data.get("teacher_feedback", "")
             assessment.status = "Submitted"
+            assessment.score = data.get("score", assessment.score)
+            write_teacher_feedback(assessment, teacher_feedback)
+
             assessment.save()
-            return render(request, 'teacher_dashboard.html')
+            return JsonResponse({
+                "message": "Assessment finalized successfully.",
+                "status": assessment.status,
+                "score": assessment.score,
+                "teacher_feedback_file": assessment.teacher_feedback_file,
+            })
         except AssessmentContent.DoesNotExist:
             return JsonResponse({"error": "Assessment not found."}, status=404)
         except Exception as e:
@@ -566,8 +603,19 @@ def mark_reviewed(request, id):
         try:
             assessment = AssessmentContent.objects.get(id=id)
             assessment.status = "Checked"
+            
+            data = json.loads(request.body.decode())
+            teacher_feedback = data.get("teacher_feedback", "")
+            assessment.score = data.get("score", assessment.score)
+            write_teacher_feedback(assessment, teacher_feedback)
+
             assessment.save()
-            return render(request, 'teacher_dashboard.html')
+            return JsonResponse({
+                "message": "Assessment marked as reviewed successfully.",
+                "status": assessment.status,
+                "score": assessment.score,
+                "teacher_feedback_file": assessment.teacher_feedback_file,
+            })
         except AssessmentContent.DoesNotExist:
             return JsonResponse({"error": "Assessment not found."}, status=404)
         except Exception as e:

@@ -45,6 +45,7 @@ class AssessmentContent(models.Model):
     user = models.ForeignKey("app.CustomUser", on_delete=models.CASCADE, related_name="assessments")
     assessment = models.FileField(upload_to="assessments/")
     assess_text_file = models.FilePathField(path="media/assessment_texts/", null=True, blank=True, max_length=256)
+    teacher_feedback_file = models.FilePathField(path="media/teacher_feedbacks/", null=True, blank=True, max_length=1280)
     summary_file = models.FilePathField(path="media/summaries/", null=True, blank=True, max_length=256)
     score = models.FloatField(default=0)
     status = models.CharField(max_length=100, choices=STATUS_CHOICES, default="In progress")
