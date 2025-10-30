@@ -189,25 +189,34 @@ def logoutuser(request):
     return redirect('login')
 
 
+
 @login_required(login_url='/ai_assess/login/')
 def teacher_dashboard(request):
     if request.user.role != 'teacher':
         return redirect('dashboard')
-    assignments = Assignment.objects.filter(
-    Q(author=request.user) | Q(evaluators=request.user)
-).distinct()
-
+    assignments = Assignment.objects.filter(Q(author=request.user) | Q(evaluators=request.user)).distinct()
     assessments = AssessmentContent.objects.filter(assignment__in=assignments).order_by('-created_at')
-    with open(f"/media/summaries/{assessments.summary_file}") as f:
-        summary_content = f.read()
-        
+
+    # Get summary for each assessment
+    summary_content = {}
+    for a in assessments:
+        try:
+            if hasattr(a, 'summary_file') and a.summary_file:
+                summary_path = os.path.join("/media/summaries/", a.summary_file)
+                with open(summary_path, 'r', encoding='utf-8') as f:
+                    summary_content[a.id] = f.read()
+            else:
+                summary_content[a.id] = None
+        except Exception:
+            summary_content[a.id] = None
+
     return render(request, 'teacher_dashboard.html', {
-        'assessments': assessments, 
-        'total_assessments': assessments.count(), 
-        'assignments': assignments, 
-        'total_assignments': assignments.count(), 
+        'assessments': assessments,
+        'total_assessments': assessments.count(),
+        'assignments': assignments,
+        'total_assignments': assignments.count(),
         'summary_content': summary_content
-        })
+    })
 
 @login_required(login_url='/ai_assess/login/')
 def student_dashboard(request):
@@ -215,21 +224,31 @@ def student_dashboard(request):
         return redirect('dashboard')
     assignments = Assignment.objects.filter(assigned_to=request.user)
     assessments = AssessmentContent.objects.filter(user=request.user).order_by('-created_at')[:10]
-    # Convert QuerySet to list of dicts for serialization
     assessments_list = list(assessments.values())
     assessments_json = json.dumps(assessments_list, cls=DjangoJSONEncoder)
-    with open(f"/media/summaries/{assessments.summary_file}") as f:
-        summary_content = f.read()
-    
+
+    # Get summary for each assessment
+    summary_content = {}
+    for a in assessments:
+        try:
+            if hasattr(a, 'summary_file') and a.summary_file:
+                summary_path = os.path.join("/media/summaries/", a.summary_file)
+                with open(summary_path, 'r', encoding='utf-8') as f:
+                    summary_content[a.id] = f.read()
+            else:
+                summary_content[a.id] = None
+        except Exception:
+            summary_content[a.id] = None
 
     return render(request, "student_dashboard.html", {
         "assessments": assessments,
         "assessments_json": assessments_json,
         "total_assessments": assessments.count(),
         "assignments": assignments,
-        "total_assignments": assignments.count()
-        , 'summary_content': summary_content
+        "total_assignments": assignments.count(),
+        'summary_content': summary_content
     })
+
 
 
 def create_assignment(request):
