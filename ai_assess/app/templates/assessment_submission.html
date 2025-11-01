@@ -99,20 +99,17 @@
             }
 
             // Otherwise, show feedback
-            let feedback = response.feedback || {};
+            let feedback = response.msg || {};
             let feedbackHTML = "";
 
-            for (let [section, data] of Object.entries(feedback)) {
+            for (let key in feedback) {
               feedbackHTML += `
-                <div class="bg-white shadow p-4 rounded-lg">
-                  <h3 class="font-semibold text-gray-800 mb-2">${section}</h3>
-                  <p><strong>Grammatical Mistakes:</strong> ${data.Grammatical_Mistakes || "None"}</p>
-                  <p><strong>Conceptual Mistakes:</strong> ${data.Conceptual_Mistakes || "None"}</p>
-                  <p><strong>Suggestions:</strong> ${data.Suggestions || "None"}</p>
+                <div class="p-4 bg-white rounded-lg shadow">
+                  <h3 class="font-semibold text-gray-800 mb-2">${key.replace(/_/g, ' ').toUpperCase()}</h3>
+                  <p class="text-gray-600">${feedback[key]}</p>
                 </div>
               `;
             }
-
             $("#feedbackContainer").html(feedbackHTML);
             $("#score").text(response.score || "N/A");
             $("#result").removeClass("hidden");

@@ -282,11 +282,15 @@ small {
     });
 
     if (response.ok) {
-      showPopup("✅ Assignment created successfully!");
-      form.reset();
-    } else {
-      showPopup("❌ Failed to create assignment", false);
-    }
+  showPopup("✅ Assignment created successfully!");
+  // Redirect after a short delay (optional, so user sees popup)
+  setTimeout(() => {
+    window.location.href = "/ai_assess/teacher_dashboard/"; // <-- Your target URL here
+  }, 150);
+} else {
+  showPopup("❌ Failed to create assignment", false);
+}
+
   });
 </script>
 
